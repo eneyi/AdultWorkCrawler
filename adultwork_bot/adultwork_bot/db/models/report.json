@@ -1,0 +1,36 @@
+{
+    "comment": 'Adult Work Sex Worker Report Data Model',
+    "name": 'Cyber Name of sex worker as displayed on ad profile',
+    "userID": 'Sex worker user ID on adult works',
+    "reportID": 'ID of field report',
+    "reportOn": 'Sex Worker the field report is generated on',
+    "reportedBy": 'Adwork user who left the report',
+    "meetDate": 'Date of Service meeting',
+    "meetLocation": 'Location of Service Meeting',
+    "type": 'Service Type',
+    "duration": 'duration of meeting',
+    "price": 'fee charged for meeting',
+    "extras": 'any extras',
+    "visitagain": 'user would visit sex worker again',
+    "recommended": 'user would recommend sex worker',
+    "valueForMoney": 'value For Money',
+    "overallRating": 'Rating out of 10',
+    "score": 'sex worker score out of 10',
+
+    "feedback":
+    {
+        "venue": {"description": '', "score": ''},
+        "worker": 
+        {
+            "description": '',
+            "score": '',
+            "attributes": 
+            {
+                "physical": {"description": '', "score": ''},
+                "personality": {"description": '', "score": ''},
+                "services": {"description": '', "score", ''}
+            }
+        },
+        "meeting": {"description": '', "score": ''}
+    }
+}

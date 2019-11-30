@@ -1,0 +1,96 @@
+{
+    "comments": 
+    [
+        'The ad object specifies data point for a single ad on adultwork.com',
+        'Ads are mostly for sex workers but could also be for service brothels or sex apartments'
+    ],
+    "name": 'Cyber Name of sex worker as displayed on ad profile',
+    "userID": 'Sex worker user ID on adult works',
+    "memberSince": 'Date sex worker joined adultworks',
+    "isVerifiedMember": 'Sex worker is a verified member of adult works',
+    "descriptions": [{'title': 'description'}],
+    "isActive": 'member is currently active',
+    "views": 'Total number of sex worker profile views',
+    "vitalStats": {"question": 'answer'},
+    "hasMovies": 'if sex worker',
+    "isTolet": 'if ad is for a to let apartment',
+    "accessingFrom": 'The IP Address for which member is accessing the internet in a different country than the UK',
+    "twitterHandle": 'Sex worker Twitter handle',
+    "location": 
+    {
+        "town": 'Location AD Level 4 - Town',
+        "region": 'Location - AD Level 3 - Region',
+        "county" : 'LocationAdultwork_dot_com_Data_of sex worker in inches',
+        "country": 'sex worker location counrtry'
+    },
+
+    "demographics": 
+    {
+        "nationality": 'sex worker nationality',
+        "gender": 'sex worker gender',
+        "orientation": 'sex worker sexual orientation',
+        "age": 'sex worker age',
+        "ethicity": 'sex worker ethnicity',
+        "dressSize": 'sex worker dress size (can be used to infer weight)',
+        "height": 'sex worker height',
+        "chestSize": 'sex worker chestsize',
+        "hairColor": 'sex worker hair color',
+        "eyeColor": 'sex worker eye color',
+        "anonPhone": 'sex worker phone (anonymiysed)',
+        "phoneCarrier": 'Phone provider service'
+    },
+
+    "services":
+    {
+        "escort": 'if sex worker offers escort services',
+        "webcam": 'if sex worker offers webcam services',
+        "phoneChat": 'if sex worker offers phone chat services',
+        "smsChat": 'if sex worker offers sms chat services',
+        "alternatives": ['alternative services offerred by sex worker'],
+        "tolet": 'if ad is for a to let',
+        "massage": 'sex worker offers massage services',
+        "masseurs": 'if ad offers masseurs services',
+        "filmmaking": 'if ad offers fil making services',
+        "seekingModels": 'if ad is seeking/recruiting models',
+        "offeringModels": 'if ad is offering models',
+        "photography": 'if ad offers photography services',
+        "parties": 'if ad offers sex parties/event etc',
+        "offeringStrippers": 'if ad offers strippers'
+    },
+
+    "preferences": 
+    {
+        "enjoys": [],
+        "with": []
+    },
+
+    "pricing":
+    [
+        {"serviceType":'incall', "price":'price', "duration": ''},
+        {"serviceType":'outcall', "price":'price', "duration": ''},
+        {"serviceType":'phoneChat', "price":'price', "duration": ''},
+        {"serviceType":'smsChat', "price":'price', "duration": ''},
+        {"serviceType":'webcam', "price":'price', "duration": ''}
+    ],
+
+    "reviews":
+    {
+        "total": 'total number of reviews',
+        "links":['links to all reviews']
+    },
+
+    "ratings":
+    {
+        "link": 'rating id',
+        "total": 'total number of reviews',
+        "positive": 'total positive reviews',
+        "neutral": 'total neutral reviews',
+        "negative": 'total negative reviews'
+    },
+
+    "tours":
+    [
+        {"where": '', "start": '', "end": '', "stops": ''}
+    ]
+    
+}

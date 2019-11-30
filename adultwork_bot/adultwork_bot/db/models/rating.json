@@ -1,0 +1,27 @@
+{
+    "comment": 'Adult Work Sex Worker Ratings Data Model',
+    "name": 'Cyber Name of sex worker as displayed on ad profile',
+    "userID": 'Sex worker user ID on adult works',
+
+    "client": 
+    {
+        "rater": 'user who left the rating username',
+        "role": 'role of rater,
+        "raterID": 'user id of rater',
+        "raterPositive": 'Total positive ratings of rater',
+        "raterNegatitve": 'Total negative ratings of rater',
+        "raterNeutral": 'Total neutral ratings of rater',
+        "raterRating": 'total rating of rater'
+    },
+
+    "serviceType": 'service type for which is being rated escort, chat, webcam etc',
+    "rating": 'positive, negative or neutral',
+    "date" : 'date the ratings was left', 
+    "description": 'text description of rating',
+    "fieldReport":
+    {
+        "hasFieldReport": 'if a field report was generated for the meeting',
+        "reportID": 'report id if field report',
+        "link": 'link to field report is field report'
+    }
+}
