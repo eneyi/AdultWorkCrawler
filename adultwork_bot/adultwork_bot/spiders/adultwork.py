@@ -19,6 +19,7 @@ class AdultworkSpider(scrapy.Spider):
         return FormRequest(self.base_url, formdata=self.parameters, callback=self.parse)
 
 
+
     '''Parse each sex worker ad on page'''
     def parse(self, response):
         pq, page = PyQuery(response.text), 1
@@ -41,6 +42,7 @@ class AdultworkSpider(scrapy.Spider):
             self.start_requests()
 
 
+
     '''Parse a single sex workers profile'''
     def parse_profile(self, response):
         pq, item =  PyQuery(response.text), response.meta['item']
@@ -59,6 +61,7 @@ class AdultworkSpider(scrapy.Spider):
         yield item  
 
 
+
     '''Parse all ratings for each sex worker on page'''
     def parse_ratings(self, response):
         item, stored_ratings = response.meta['item'], db.connect()['ratings'].findall('userid')
@@ -75,11 +78,13 @@ class AdultworkSpider(scrapy.Spider):
         yield item
 
 
+
     '''Parse all reviews for each sex worker on page'''
     def parse_review(self, response):
         item, pq = response.meta['item'], PyQuery(response.text)
         item = AdultworkEngine().extract_review(pq, item)
         yield item
+
 
 
     '''Parse all sex worker's tours'''
