@@ -97,7 +97,7 @@ class AdultWorkEngine(object):
         if len(sms_prices) > 1:
             item['pricing'].append({"serviceType":'webcam', "price":sms_prices[0].split()[0], "duration": sms_prices[-1].split()[0]})
         
-       ## Ratings Data
+        ## Ratings Data
         item['ratings'] = {}
         ratings_text = [i.strip().split()[0] for i in pq('a[onclick*="viewRating"]').attr('title').split('-')]
         item['ratings']['hasRatings'] = ratings_text[0].split()[0] != '0'
@@ -110,27 +110,28 @@ class AdultWorkEngine(object):
             item['ratings']['disputes'] = ratings_text[1].split()[6]
 
        
-       ## Reviews Data
-       item['reviews'] = {}
-       reviews = pq('a[href*="vFR"]')
-       item['reviews']['hasReviews'] = len(reviews) != 0
-       if item['reviews']['hasReviews']:
-           review_base_link = 'https://www.adultwork.com/ViewFieldReport.asp?FRID={}'
-           reviewLinks = [i.attr('href').split("(")[-1].replace(")", "") for i in pq('a[href*="vFR"]').items()]
-           item['reviews']['reviewLinks'] = [review_base_link.format(i) for i in reviewLinks]
+        ## Reviews Data
+        item['reviews'] = {}
+        reviews = pq('a[href*="vFR"]')
+        item['reviews']['hasReviews'] = len(reviews) != 0
+        if item['reviews']['hasReviews']:
+            review_base_link = 'https://www.adultwork.com/ViewFieldReport.asp?FRID={}'
+            reviewLinks = [i.attr('href').split("(")[-1].replace(")", "") for i in pq('a[href*="vFR"]').items()]
+            item['reviews']['reviewLinks'] = [review_base_link.format(i) for i in reviewLinks]
 
-        
+            
 
-        ## Tours Data
-        item['tours'] = {}
-        item['tours']['tourLink'] = 'https://www.adultwork.com/dlgUserTours.asp?UserID={}'.format(item['userid'])
-        item['tours']['hasTours'] = 'Sorry, this member does not have any tours' not in requests.get(item['tours']['tourLink']).text
-        return item 
-    
-    '''Extracts ratings data fields from pyquery object-pq and stores in data object-item '''
+            ## Tours Data
+            item['tours'] = {}
+            item['tours']['tourLink'] = 'https://www.adultwork.com/dlgUserTours.asp?UserID={}'.format(item['userid'])
+            item['tours']['hasTours'] = 'Sorry, this member does not have any tours' not in requests.get(item['tours']['tourLink']).text
+            return item
+
+    '''
+    #Extracts ratings data fields from pyquery object-pq and stores in data object-item 
     def extract_ratings(self, pq, item):
-        '''pq: PyQuery Object with data to extract'''
-        '''item: item object that holds data'''
+        #pq: PyQuery Object with data to extract
+        #item: item object that holds data
         item['ratings']['ratings'] = []
         service_ratings = pq('table[id*="tbl"]').not_("[id*='Line']")
         for service in service_ratings.items():
@@ -147,10 +148,10 @@ class AdultWorkEngine(object):
         return item
 
 
-    '''Extracts reviews data fields from pyquery object-pq and stores in data object-item'''
+    #Extracts reviews data fields from pyquery object-pq and stores in data object-item
     def extract_review(self, pq, item):
-        '''pq: PyQuery Object with data to extract'''
-        '''item: item object that holds data'''
+        #pq: PyQuery Object with data to extract
+        #item: item object that holds data
         data = {}
         data['for'] = pq('td.Label:contains("Report On:")').next().text().split("\xa0")[0]
         data['by'] = pq('td.Label:contains("Report By:")').next().text()
@@ -191,7 +192,7 @@ class AdultWorkEngine(object):
         item['reviews']['reviews'].append(data)
         return item
 
-    '''Extracts tours data fields from pyquery object-pq and stores in data object-item'''
+    #Extracts tours data fields from pyquery object-pq and stores in data object-item
     def extract_tours(self, pq, item):
         item['tours']['tours'] = []
         tourDetails = pq('td.Padded:contains("Details")').parent()
@@ -204,7 +205,7 @@ class AdultWorkEngine(object):
             data['stops'] = PyQuery(w[0][5]).text()
             item['tours']['tours'].append(data)
         return item
-
+    '''
 
 
 

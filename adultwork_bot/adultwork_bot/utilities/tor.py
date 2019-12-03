@@ -1,5 +1,10 @@
 from requests import get
+from stem import Signal
+from stem.control import Controller
+from time import sleep
 
+class TorIPError(Exception):
+    pass
 
 class TorController(object):
     def __init__(self):
@@ -22,14 +27,15 @@ class TorController(object):
     
     '''This returns the current tor ip address'''
     def get_current_tor_ip(self):
-        response = get(ican, proxies={"http": self.local_http_proxy})
+        response = get(self.ican, proxies={"http": self.local_http_proxy})
         if response.status_code == 200:
             return response.text.strip()
-        raise TorError("Failed to Obtain TOR IP Address")
+        else:
+            raise TorIPError("Failed tor obtain new ip address")
 
     '''Change Current TOR Circuit'''
     def get_new_circuit(self):
-        with Controller.from_port(address=self.toraddress, port=self.torport) as controller:
+        with Controller.from_port(address=self.torhost, port=self.torport) as controller:
             controller.authenticate(password=self.torpassword)
             controller.signal(Signal.NEWNYM)
         # Wait till the IP 'settles in'.
@@ -41,11 +47,12 @@ class TorController(object):
         attempts = 0
         while True:
             if attempts == self.threshold:
-                raise TorError("Failed tor obtain new ip address")
+                raise TorIPError("Failed tor obtain new ip address")
             try:
                 current_ip = self.get_current_tor_ip()
             except Exception as e:
                 self.get_new_circuit()
+                print(e)
                 continue
 
             if current_ip in self.unusable_ips or current_ip == self.my_ip():
@@ -63,6 +70,6 @@ class TorController(object):
 
         # Release the oldest registred IP.
         if self.threshold:
-            if len(self.used_ips) > self.threshold:
-                del self.used_ips[0]
+            if len(self.unusable_ips) > self.threshold:
+                del self.unusable_ips[0]
 

@@ -6,7 +6,8 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-from adultwork.utilities.tor import TorController
+from adultwork_bot.utilities.tor import TorController
+from adultwork_bot.utilities.utilities import Pooling
 
 
 class AdultworkBotSpiderMiddleware(object):
@@ -56,7 +57,6 @@ class AdultworkBotSpiderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
-
 class AdultworkBotDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
@@ -103,16 +103,15 @@ class AdultworkBotDownloaderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
+class AdultworkBotRandomUserAgentMiddleware(object):
+    def process_request(self, request, spider):
+        user_agent = Pooling().ua_pool()
+        request.headers['User-Agent'] = user_agent
+        spider.logger.info('User Agent: %s' % request.headers['User-Agent'])
+
 
 class AdultworkBotProxyMiddleware(object):
     request_count = 0 ## track number of requests
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
 
     def process_request(self, request, spider):
         self.request_count += 1
@@ -120,12 +119,8 @@ class AdultworkBotProxyMiddleware(object):
         ## switch tor ip after every 5 requests
         if self.request_count > 5:
             self.request_count = 0
-            TorController().get_new_tor_ip()
+            TorController().get_new_torip()
 
         request.meta['proxy'] = 'http://127.0.0.1:8118'
-        spider.log('Proxy : %s' % request.meta['proxy'])
+        spider.logger.info('Proxy : %s' % request.meta['proxy'])
     
-    "https://stackoverflow.com/questions/45009940/scrapy-with-privoxy-and-tor-how-to-renew-ip"
-    "https://blog.michaelyin.info/scrapy-socket-proxy/"
-    "https://blog.michaelyin.info/scrapy-socket-proxy/"
-    "https://gist.github.com/DusanMadar/8d11026b7ce0bce6a67f7dd87b999f6b"
