@@ -8,6 +8,7 @@ from toripchanger import TorIpChanger
 from scrapy import signals
 from adultwork_bot.utilities.tor import TorController
 from adultwork_bot.utilities.utilities import Pooling
+ip_changer = TorIpChanger(reuse_threshold=10)
 
 
 class AdultworkBotRandomUserAgentMiddleware(object):
@@ -16,8 +17,6 @@ class AdultworkBotRandomUserAgentMiddleware(object):
         request.headers['User-Agent'] = user_agent
         spider.logger.info('User Agent: %s' % request.headers['User-Agent'])
 
-
-ip_changer = TorIpChanger(reuse_threshold=10)
 
 
 class ProxyMiddleware(object):

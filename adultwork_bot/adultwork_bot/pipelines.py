@@ -9,3 +9,7 @@
 class AdultworkBotPipeline(object):
     def process_item(self, item, spider):
         return item
+
+class MongoDBPipeline(object):
+    def process_item(self, item, spider):
+        return item

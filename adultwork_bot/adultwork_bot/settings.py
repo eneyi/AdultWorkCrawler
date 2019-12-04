@@ -17,7 +17,7 @@ NEWSPIDER_MODULE = 'adultwork_bot.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+#ßUSER_AGENT = 'Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -30,7 +30,7 @@ DOWNLOAD_DELAY = 3
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 16
+#CONCURRENT_REQUESTS_PER_DOMAIN = 16
 CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
@@ -67,16 +67,16 @@ CONCURRENT_REQUESTS_PER_IP = 16
   #  }
 
 DOWNLOADER_MIDDLEWARES = {
-    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+    #'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
     #'adultwork_bot.middlewares.ProxyMiddleware': 100,
-    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+    #'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
 }
 
 #ROTATING_PROXY_LIST_PATH = '/home/ssori/Github/awbot/adultwork_bot/adultwork_bot/utilities/proxies.txt'
-ROTATING_PROXY_LIST = Pooling().proxy_pool()
+#ROTATING_PROXY_LIST = Pooling().proxy_pool()
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {

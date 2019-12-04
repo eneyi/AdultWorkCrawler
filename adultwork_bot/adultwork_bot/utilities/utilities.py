@@ -60,5 +60,3 @@ class Pooling(object):
         #browsers = self.ua.data['browsers']['chrome'] + self.ua.data['browsers']['firefox']
         shuffle(browsers)
         return choice(browsers)
-if __name__ == '__main__':
-    Pooling().proxy_pool()
