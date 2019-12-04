@@ -29,7 +29,8 @@ class AdultWorkEngine(object):
         item['hasMovies'] = pq('a.HomePageTabLink:contains("Movies")') is not None
         item['isToLet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
         item['accessingFrom'] = pq('td.Label:contains("Accessing From")').next().text()
-        item['twitterHandle'] = pq('a[onmouseover*="twitter.com"]').attr('onmouseover').split('=')[-1].split(';')[0].replace("'", "")
+        th = pq('a[onmouseover*="twitter.com"]')
+        item['twitterHandle'] = th.attr('onmouseover').split('=')[-1].split(';')[0].replace("'", "") if th else ''
         
         ## Location Data
         item['location'] = {}

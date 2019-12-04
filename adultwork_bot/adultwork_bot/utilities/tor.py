@@ -13,7 +13,7 @@ class TorController(object):
         self.ip_init_wait = 0.5 ## wait for new ip to be initialized
         self.local_http_proxy = "127.0.0.1:8118"
         self.torhost = "127.0.0.1"
-        self.torpassword = ""
+        self.torpassword = "aVe7ySt3althB0t"
         self.torport = 9051
         self.ican = "http://icanhazip.com/"
         self.unusable_ips = []

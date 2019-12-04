@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from adultwork_bot.utilities.utilities import Pooling
 
 # Scrapy settings for adultwork_bot project
 #
@@ -16,7 +17,7 @@ NEWSPIDER_MODULE = 'adultwork_bot.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'adultwork_bot (+http://www.yourdomain.com)'
+#USER_AGENT = 'Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -29,8 +30,8 @@ DOWNLOAD_DELAY = 3
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
-#CONCURRENT_REQUESTS_PER_IP = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -39,10 +40,10 @@ DOWNLOAD_DELAY = 3
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-#DEFAULT_REQUEST_HEADERS = {
+##DEFAULT_REQUEST_HEADERS = {
 #   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#   'Accept-Language': 'en',
-#}
+ #  'Accept-Language': 'en',
+  # }
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
@@ -56,14 +57,26 @@ DOWNLOAD_DELAY = 3
 #DOWNLOADER_MIDDLEWARES = {
 #    'adultwork_bot.middlewares.AdultworkBotDownloaderMiddleware': 543,
 #}
-DOWNLOADER_MIDDLEWARES = {
+#DOWNLOADER_MIDDLEWARES = {
         #user agent
-        'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-        'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
+        #'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+        #'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
         #privoxy
-        'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
-        'adultwork_bot.middlewares.AdultworkBotProxyMiddleware': 100
-    }
+        #'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+ #       'adultwork_bot.middlewares.AdultworkBotProxyMiddleware': 100
+  #  }
+
+DOWNLOADER_MIDDLEWARES = {
+    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+    #'adultwork_bot.middlewares.ProxyMiddleware': 100,
+    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
+    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
+}
+
+#ROTATING_PROXY_LIST_PATH = '/home/ssori/Github/awbot/adultwork_bot/adultwork_bot/utilities/proxies.txt'
+ROTATING_PROXY_LIST = Pooling().proxy_pool()
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
