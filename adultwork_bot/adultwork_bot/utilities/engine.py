@@ -136,6 +136,13 @@ class AdultWorkEngine(object):
                 flattened = [item for sublist in m_list for item in sublist]
                 data = [PyQuery(i).text() for i in flattened]
                 data = [i for i in data if 'field report' not in i.lower()]
+
+                foruser = [PyQuery(i)('a[href*="UserID="]') for i in flattened]
+                foruser = [i for i in foruser if len(i) != 0]
+                if len(foruser) != 0:
+                    data[1] = PyQuery(foruser[0]).attr('href').split('UserID=')[-1].replace("'", "")
+
+                
                 if len(data) == 6:
                     data = {"for": item['userid'], "service": service.attr('id').replace('tbl', ''), "type": data[0], "by": data[1], "date": data[2], "role": data[3],"serviceType":data[4], "description": data[5]}
                     item['ratings']['ratings'].append(data)
@@ -146,7 +153,6 @@ class AdultWorkEngine(object):
         #pq: PyQuery Object with data to extract
         #item: item object that holds data
         if item['reviews']['hasReviews']:
-            item['reviews']['reviews'] = []
             for reviewLink in item['reviews']['reviewLinks']:
                 data, pq = {}, PyQuery(requests.get(reviewLink).text)
                 data['for'] = pq('td.Label:contains("Report On:")').next().text().split("\xa0")[0]
