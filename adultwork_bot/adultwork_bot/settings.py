@@ -31,6 +31,8 @@ DOWNLOAD_DELAY = 3
 CONCURRENT_REQUESTS_PER_IP = 16
 MONGO_DB = 'Adultwork'
 SQL_DB = 'adultwork'
+FEED_FORMAT = 'json'
+FEED_URI = 'first50.json'
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False

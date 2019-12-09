@@ -40,8 +40,9 @@ class AdultworkSpider(scrapy.Spider):
             item['profile'] = 'http://adultwork.com/ViewProfile.asp?UserID={}'.format(profileID)
             item['ratingsLink'] = 'http://adultwork.com/dlgViewRatings.asp?UserID={}'.format(profileID)
             item['toursLink'] = 'http://adultwork.com/dlgUserTours.asp?UserID={}'.format(profileID)
-            yield item
-            #yield Request(url=item['profile'], callback=self.parse_profile, meta={'item': item})
+            yield Request(url=item['profile'], callback=self.parse_profile, meta={'item': item})
+
+        '''
         
         ## Check for next page
         hasNextPage = pq("input.Button[name='btnNext']")
@@ -56,6 +57,7 @@ class AdultworkSpider(scrapy.Spider):
             self.parameters['btnNext'] = '>'
 
             yield FormRequest(url='http://adultwork.com/Search.asp', formdata=self.parameters, method='POST', callback=self.parse, dont_filter=True)
+        '''
 
 
 
