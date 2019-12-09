@@ -68,6 +68,4 @@ DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'adultwork_bot.pipelines.AdultworkBotPipeline': 300,
-#}
+ITEM_PIPELINES = {'adultwork_bot.pipelines.AdultworkMongoPipeline': 300,}

@@ -26,6 +26,7 @@ class AdultWorkEngine(object):
         item['name'] = pq('span[itemprop="name"]').text()
         item['descriptions'] = pq('td.unSelectable').text()
         item['memberSince'] = pq('td.Label:contains("Member Since")').next().text()
+        item['lastLogin'] = pq('td.Label:contains("Last Login")').next().text()
         item['views'] = pq('td.Label:contains("Views")').next().text()
         item['verified'] = pq('img[src="images/VerifiedLogo.gif"]') is not None
         item['hasMovies'] = pq('a.HomePageTabLink:contains("Movies")') is not None
