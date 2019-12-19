@@ -29,10 +29,8 @@ DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 CONCURRENT_REQUESTS_PER_IP = 16
-MONGO_DB = 'Adultwork'
+MONGO_DB = 'Adultwork2'
 SQL_DB = 'adultwork'
-FEED_FORMAT = 'json'
-FEED_URI = 'first50.json'
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -68,4 +66,7 @@ DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {'adultwork_bot.pipelines.AdultworkMongoPipeline': 300,}
+ITEM_PIPELINES = {
+    'adultwork_bot.pipelines.AdultworkBotCleanerPipeline': 300,
+    'adultwork_bot.pipelines.AdultworkMongoPipeline': 310,
+    }

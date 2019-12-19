@@ -23,63 +23,67 @@ class AdultWorkEngine(object):
     def extract_profile(self, pq, item):
         '''pq: PyQuery Object with data to extract'''
         '''item: item object that holds data'''
-        item['name'] = pq('span[itemprop="name"]').text()
-        item['descriptions'] = pq('td.unSelectable').text()
-        item['memberSince'] = pq('td.Label:contains("Member Since")').next().text()
-        item['lastLogin'] = pq('td.Label:contains("Last Login")').next().text()
-        item['views'] = pq('td.Label:contains("Views")').next().text()
-        item['verified'] = pq('img[src="images/VerifiedLogo.gif"]') is not None
-        item['hasMovies'] = pq('a.HomePageTabLink:contains("Movies")') is not None
-        item['isToLet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
-        item['accessingFrom'] = pq('td.Label:contains("Accessing From")').next().text()
+        item['profileid'] = item['profile']['userid']
+        item['profile']['name'] = pq('span[itemprop="name"]').text()
+        item['profile']['descriptions'] = pq('td.unSelectable').text()
+        item['profile']['otherDescriptions'] = '. '.join([i.text() for i in pq('div[id*="content"]').items()]).replace('\n', '').lower()
+        item['profile']['memberSince'] = pq('td.Label:contains("Member Since")').next().text()
+        item['profile']['lastLogin'] = pq('td.Label:contains("Last Login")').next().text()
+        item['profile']['views'] = pq('td.Label:contains("Views")').next().text()
+        item['profile']['verified'] = pq('img[src="images/VerifiedLogo.gif"]') is not None
+        item['profile']['hasMovies'] = pq('a.HomePageTabLink:contains("Movies")') is not None
+        item['profile']['isToLet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['accessingFrom'] = pq('td.Label:contains("Accessing From")').next().text()
+        imgbase = 'https://www.adultwork.com/dlgViewImage.asp?Image={}'
+        item['profile']['image_links'] = [imgbase.format(i.attr('src')).replace('/t/', '/i/') for i in  pq('a[href*="switchImage"] img').items()] or None
         th = pq('a[onmouseover*="twitter.com"]')
-        item['twitterHandle'] = th.attr('onmouseover').split('=')[-1].split(';')[0].replace("'", "") if th else ''
+        item['profile']['twitterHandle'] = th.attr('onmouseover').split('=')[-1].split(';')[0].replace("'", "") if th else ''
         
         ## Location Data
-        item['location'] = {}
-        item['location']['town'] = pq('td.Label:contains("Town")').next().text()
-        item['location']['county'] = pq('td.Label:contains("County")').next().text()
-        item['location']['region'] = pq('td.Label:contains("Region")').next().text()
-        item['location']['country'] = pq('td.Label:contains("Country")').next().text()
+        item['profile']['location'] = {}
+        item['profile']['location']['town'] = pq('td.Label:contains("Town")').next().text()
+        item['profile']['location']['county'] = pq('td.Label:contains("County")').next().text()
+        item['profile']['location']['region'] = pq('td.Label:contains("Region")').next().text()
+        item['profile']['location']['country'] = pq('td.Label:contains("Country")').next().text()
 
         ## Demographic Data
-        item['demographics'] = {}
-        item['demographics']['nationality'] = pq('td.Label:contains("Nationality")').next().text()
-        item['demographics']['gender'] = pq('td.Label:contains("Gender")').next().text()
-        item['demographics']['orientation'] = pq('td.Label:contains("Orientation")').next().text()
-        item['demographics']['age'] = pq('td.Label:contains("Age")').next().text()
-        item['demographics']['ethnicity'] = pq('td:contains("Ethnicity:")').next().text()
-        item['demographics']['dressSize'] = pq('td:contains("Dress Size:")').next().text()
-        item['demographics']['height'] = pq('td:contains("Height:")').next().text()
-        item['demographics']['chestSize'] = pq('td:contains("Chest Size:")').next().text()
-        item['demographics']['hairColor'] = pq('td:contains("Hair Colour:")').next().text()
-        item['demographics']['eyeColor'] = pq('td:contains("Eye Colour:")').next().text()
-        item['demographics']['phone'] = self.anonymize_phone(pq('b[itemprop="telephone"]').text())
+        item['profile']['demographics'] = {}
+        item['profile']['demographics']['nationality'] = pq('td.Label:contains("Nationality")').next().text()
+        item['profile']['demographics']['gender'] = pq('td.Label:contains("Gender")').next().text()
+        item['profile']['demographics']['orientation'] = pq('td.Label:contains("Orientation")').next().text()
+        item['profile']['demographics']['age'] = pq('td.Label:contains("Age")').next().text()
+        item['profile']['demographics']['ethnicity'] = pq('td:contains("Ethnicity:")').next().text()
+        item['profile']['demographics']['dressSize'] = pq('td:contains("Dress Size:")').next().text()
+        item['profile']['demographics']['height'] = pq('td:contains("Height:")').next().text()
+        item['profile']['demographics']['chestSize'] = pq('td:contains("Chest Size:")').next().text()
+        item['profile']['demographics']['hairColor'] = pq('td:contains("Hair Colour:")').next().text()
+        item['profile']['demographics']['eyeColor'] = pq('td:contains("Eye Colour:")').next().text()
+        item['profile']['demographics']['phone'] = self.anonymize_phone(pq('b[itemprop="telephone"]').text())
         #item['demographics']['phoneCarrier'] = self.get_carrier(pq('b[itemprop="telephone"]').text())
 
         ## Services Data
-        item['services'] = {}
-        item['services']['escort'] = 'escort' in pq('a[href*="javascript:makeBooking()"]').text().lower()
-        item['services']['phoneChat'] = 'phone chat' in pq('a[href*="javascript:doPhoneChat()"]').text().lower()
-        item['services']['smsChat'] = 'sms chat' in pq('a[href*="javascript:doSMSChat()"]').text().lower()
-        item['services']['webcam'] = 'webcam' in pq('a[href*="javascript:dC"]').text().lower()
-        item['services']['massage'] = 'massage' in pq('#main-content-container').text().lower().lower()
+        item['profile']['services'] = {}
+        item['profile']['services']['escort'] = 'escort' in pq('a[href*="javascript:makeBooking()"]').text().lower()
+        item['profile']['services']['phoneChat'] = 'phone chat' in pq('a[href*="javascript:doPhoneChat()"]').text().lower()
+        item['profile']['services']['smsChat'] = 'sms chat' in pq('a[href*="javascript:doSMSChat()"]').text().lower()
+        item['profile']['services']['webcam'] = 'webcam' in pq('a[href*="javascript:dC"]').text().lower()
+        item['profile']['services']['massage'] = 'massage' in pq('#main-content-container').text().lower().lower()
         ats = pq('span.ToolTip:contains("Alternative")').attr("title")
-        item['services']['alternatives'] = [i for i in ats.replace('\r', '').split('\n')[1::] if i != ''] if ats else []
-        item['services']['tolet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
-        item['services']['masseurs'] = 'masseur' in pq('td:contains("Other Services")').text().lower()
-        item['services']['seekingModels'] = 'models wanted' in pq('td:contains("Other Services")').text().lower()
-        item['services']['parties'] = 'parties' in pq('td:contains("Other Services")').text().lower()
-        item['services']['photography'] = 'photo' in pq('td:contains("Other Services")').text().lower()
-        item['services']['strippers'] = 'stripper' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['services']['alternatives'] = [i for i in ats.replace('\r', '').split('\n')[1::] if i != ''] if ats else []
+        item['profile']['services']['tolet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['services']['masseurs'] = 'masseur' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['services']['seekingModels'] = 'models wanted' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['services']['parties'] = 'parties' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['services']['photography'] = 'photo' in pq('td:contains("Other Services")').text().lower()
+        item['profile']['services']['strippers'] = 'stripper' in pq('td:contains("Other Services")').text().lower()
 
         ## Preferences Data
-        item['preferences'] = {}
-        item['preferences']['with'] = ''
-        item['preferences']['enjoys'] = pq('div#dPref table:contains("Enjoys")').text().split('\n')
+        item['profile']['preferences'] = {}
+        item['profile']['preferences']['with'] = ''
+        item['profile']['preferences']['enjoys'] = pq('div#dPref table:contains("Enjoys")').text().split('\n')
 
         ## Pricing Data
-        item['pricing'] = []
+        item['profile']['pricing'] = []
 
         # escort services prices
         durations = [i.text() for i in pq('td[id*="tdRT"]').items()]
@@ -87,40 +91,67 @@ class AdultWorkEngine(object):
         outcallPrices = [i.text() for i in pq('td[id*="tdRO"]').items()]
         for i in range(len(durations)):
             if len(incallPrices) != 0:
-                item['pricing'].append({"serviceType":'incall', "price":incallPrices[i], "duration": durations[i]})
+                item['profile']['pricing'].append({"serviceType":'incall', "price":incallPrices[i], "duration": durations[i]})
             if len(outcallPrices) != 0:
-                item['pricing'].append({"serviceType":'outcall', "price":outcallPrices[i], "duration": durations[i]})
+                item['profile']['pricing'].append({"serviceType":'outcall', "price":outcallPrices[i], "duration": durations[i]})
 
         # webcam data
         webcam_prices = pq('td.Padded:contains("To webcam via DirectCam")').next().next().text().split('per ')
         pc_prices = pq('td.Padded:contains("To phone chat via DirectCam")').next().next().text().split('per ')
         sms_prices = pq('td.Padded:contains("To book a phone chat session")').next().next().text().split('per ')
         if len(webcam_prices) > 1:
-            item['pricing'].append({"serviceType":'webcam', "price":webcam_prices[0].split()[0], "duration":webcam_prices[-1].split()[0]})
+            item['profile']['pricing'].append({"serviceType":'webcam', "price":webcam_prices[0].split()[0], "duration":webcam_prices[-1].split()[0]})
         if len(pc_prices) > 1:
-            item['pricing'].append({"serviceType":'webcam', "price":pc_prices[0].split()[0], "duration":pc_prices[-1].split()[0]})
+            item['profile']['pricing'].append({"serviceType":'webcam', "price":pc_prices[0].split()[0], "duration":pc_prices[-1].split()[0]})
         if len(sms_prices) > 1:
-            item['pricing'].append({"serviceType":'webcam', "price":sms_prices[0].split()[0], "duration": sms_prices[-1].split()[0]})
+            item['profile']['pricing'].append({"serviceType":'webcam', "price":sms_prices[0].split()[0], "duration": sms_prices[-1].split()[0]})
+        
+         ## Tours Data
+        item['tours'] = {}
+        item['profile']['tourLink'] = 'https://www.adultwork.com/dlgUserTours.asp?UserID={}'.format(item['profile']['userid'])
+        item['profile']['hasTours'] = 'Sorry, this member does not' not in requests.get(item['profile']['tourLink']).text
         
         ## Ratings Data
         item['ratings'] = {}
-        item['ratings']['ratingsLink'] = 'https://www.adultwork.com/dlgViewRatings.asp?UserID={}'.format(item['userid'])
-        item['ratings']['ratings_desc'] = pq('a[onclick*="viewRating"]').attr('title')
-        item['ratings']['hasRatings'] = 'There is no Feedback for this Member' not in requests.get(item['ratings']['ratingsLink']).text
+        item['profile']['ratingsLink'] = 'https://www.adultwork.com/dlgViewRatings.asp?UserID={}'.format(item['profile']['userid'])
+        ratsdesc = pq('a[onclick*="viewRating"]').attr('title')
+        if ratsdesc:
+            item['profile']['ratings_total'] = ratsdesc.split(' - ')[0].split()[0]
+            rts = ratsdesc.split(' - ')[1].split(',')
+            item['profile']['ratings_positive'] = rts[0].split()[0].strip()
+            item['profile']['ratings_neutral'] = rts[1].split()[0].strip()
+            item['profile']['ratings_negative'] = rts[2].split()[0].strip()
+            item['profile']['ratings_disputes'] = rts[3].split()[0].strip()
+        item['profile']['hasRatings'] = 'There is no Feedback for this Member' not in requests.get(item['profile']['ratingsLink']).text
         
         ## Reviews Data
         item['reviews'] = {}
         reviews = pq('a[href*="vFR"]')
-        item['reviews']['hasReviews'] = len(reviews) != 0
-        if item['reviews']['hasReviews']:
+        item['profile']['hasReviews'] = len(reviews) != 0
+        if item['profile']['hasReviews']:
             review_base_link = 'https://www.adultwork.com/ViewFieldReport.asp?FRID={}'
             reviewLinks = [i.attr('href').split("(")[-1].replace(")", "") for i in pq('a[href*="vFR"]').items()]
-            item['reviews']['reviewLinks'] = [review_base_link.format(i) for i in reviewLinks]
+            item['profile']['reviewLinks'] = [review_base_link.format(i) for i in reviewLinks]
+        return item
 
-        ## Tours Data
-        item['tours'] = {}
-        item['tours']['tourLink'] = 'https://www.adultwork.com/dlgUserTours.asp?UserID={}'.format(item['userid'])
-        item['tours']['hasTours'] = 'Sorry, this member does not' not in requests.get(item['tours']['tourLink']).text
+       
+
+    #Extracts tours data fields from pyquery object-pq and stores in data object-item
+    def extract_tours(self, pq, item):
+        item['tours']['tours'] = []
+        tourDetails = pq('td.Padded:contains("Details")').parent()
+        for tourDetail in tourDetails.items():
+            cells = tourDetail('td')
+            data = {}
+            data['id'] = item['profileid']
+            data['tourLink'] = item['profile']['tourLink']
+            data['tour_desc'] = PyQuery(cells[2]).text()
+            sts = PyQuery(cells[5]).text()
+            data['stops'] = 1 if '1 in' in sts else sts
+            data['where'] = sts.split('1 in ')[-1] if '1 in' in sts else 'Unknown'
+            data['starts'] = PyQuery(cells[3]).text()
+            data['ends'] = PyQuery(cells[4]).text()
+            item['tours']['tours'].append(data)
         return item
 
     #Extracts ratings data fields from pyquery object-pq and stores in data object-item 
@@ -140,12 +171,14 @@ class AdultWorkEngine(object):
 
                 foruser = [PyQuery(i)('a[href*="UserID="]') for i in flattened]
                 foruser = [i for i in foruser if len(i) != 0]
+                ff = None
                 if len(foruser) != 0:
-                    data[1] = PyQuery(foruser[0]).attr('href').split('UserID=')[-1].replace("'", "")
+                    ff = PyQuery(foruser[0]).attr('href').split('UserID=')[-1].replace("'", "")
 
                 
                 if len(data) == 6:
-                    data = {"for": item['userid'], "service": service.attr('id').replace('tbl', ''), "type": data[0], "by": data[1], "date": data[2], "role": data[3],"serviceType":data[4], "description": data[5]}
+                    by = data[1].lower()
+                    data = {"id": item['profileid'], "for": item['profileid'], "service": service.attr('id').replace('tbl', ''), "type": data[0].replace('\n', ''), "by": by, "byid": ff, "date": data[2], "role": data[3],"serviceType":data[4], "description": data[5]}
                     item['ratings']['ratings'].append(data)
         return item
     
@@ -153,11 +186,13 @@ class AdultWorkEngine(object):
     def extract_review(self, item):
         #pq: PyQuery Object with data to extract
         #item: item object that holds data
-        if item['reviews']['hasReviews']:
-            for reviewLink in item['reviews']['reviewLinks']:
+        if item['profile']['hasReviews']:
+            for reviewLink in item['profile']['reviewLinks']:
                 data, pq = {}, PyQuery(requests.get(reviewLink).text)
+                data['id'] = item['profileid']
+                data['reviewLink'] = reviewLink
                 data['for'] = pq('td.Label:contains("Report On:")').next().text().split("\xa0")[0]
-                data['by'] = pq('td.Label:contains("Report By:")').next().text()
+                data['by'] = pq('td.Label:contains("Report By:")').next().text().lower()
                 data['meetDate'] = pq('td.Label:contains("Meet Date:")').next().text()
                 data['meetLocation'] = pq('td.Label:contains("Meet Location:")').next().text()
                 data['type'] =pq('td.Label:contains("Type:")').next().text()
@@ -166,7 +201,7 @@ class AdultWorkEngine(object):
                 data['recommended'] = pq('td.Label:contains("recommend:")').next().text()
                 data['visitAgain'] = pq('td.Label:contains("visit again:")').next().text()
                 data['valueForMoney'] = pq('td.Label:contains("for money:")').next().text()
-                data['overallRatings'] = pq('td.Label:contains("Overall Rating:")').next().text().split()[0]
+                data['overallRatings'] = pq('td.Label:contains("Overall Rating:")').next().text().split()[0] or None
 
                 data['feedback'] = {}
 
@@ -177,47 +212,26 @@ class AdultWorkEngine(object):
                 data['feedback']['meeting'] = {}
                 data['feedback']['meeting']['description'] = pq('td.Label:contains("About the Meeting")').parent().next().next().text()
                 data['feedback']['meeting']['score'] = pq('td.Label:contains("About the Meeting")').next().text().split("Score: ")[-1]
-
-                ss = "About " + data["for"].lower()
-                wf = pq('td.Label:contains("{}")'.format(ss)).parent()
                 
                 data['feedback']['worker'] = {}
                 data['feedback']['worker']['attributes'] = {}
 
                 data['feedback']['worker']['attributes']['physical'] = {}
-                data['feedback']['worker']['attributes']['physical']['description'] = wf.next().next().next().text()
-                data['feedback']['worker']['attributes']['physical']['score'] = wf.next().next().text().split("Score: ")[-1]
+                data['feedback']['worker']['attributes']['physical']['description'] = pq('i:contains("Physical")').parent().parent().next().text()
+                data['feedback']['worker']['attributes']['physical']['score'] = pq('i:contains("Physical")').parent().next().text().split("Score: ")[-1]
 
                 data['feedback']['worker']['attributes']['personality'] = {}
-                data['feedback']['worker']['attributes']['personality']['description'] = wf.next().next().next().next().next().next().text()
-                data['feedback']['worker']['attributes']['personality']['score'] = wf.next().next().next().next().next().text().split("Score: ")[-1]
+                data['feedback']['worker']['attributes']['personality']['description'] = pq('i:contains("Personality")').parent().parent().next().text()
+                data['feedback']['worker']['attributes']['personality']['score'] = pq('i:contains("Personality")').parent().next().text().split("Score: ")[-1]
 
                 data['feedback']['worker']['attributes']['service'] = {}
-                data['feedback']['worker']['attributes']['service']['description'] = wf.next().next().next().next().next().next().next().next().next().text()
-                data['feedback']['worker']['attributes']['service']['score'] = wf.next().next().next().next().next().next().next().next().text().split("Score: ")[-1]
+                data['feedback']['worker']['attributes']['service']['description'] = pq('i:contains("Service")').parent().parent().next().text()
+                data['feedback']['worker']['attributes']['service']['score'] = pq('i:contains("Service")').parent().next().text().split("Score: ")[-1]
                 item['reviews']['reviews'].append(data)
                 sleep(1)
         return item
 
-    #Extracts tours data fields from pyquery object-pq and stores in data object-item
-    def extract_tours(self, pq, item):
-        item['tours']['tours'] = []
-        tourDetails = pq('td.Padded:contains("Details")').parent()
-        for tourDetail in tourDetails.items():
-            cells = tourDetail('td')
-            data = {}
-            data['where'] = PyQuery(cells[2]).text()
-            data['starts'] = PyQuery(cells[3]).text()
-            data['ends'] = PyQuery(cells[4]).text()
-            data['stops'] = PyQuery(cells[5]).text()
-            item['tours']['tours'].append(data)
-        return item
-
-
-
-
-
-
+    
         
 
 

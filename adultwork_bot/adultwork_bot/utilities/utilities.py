@@ -3,6 +3,7 @@ from random import choice, shuffle
 #from fake_useragent import UserAgent
 from requests import get
 import datetime
+from pymongo import MongoClient
 
 
 
@@ -60,3 +61,13 @@ class Pooling(object):
         #browsers = self.ua.data['browsers']['chrome'] + self.ua.data['browsers']['firefox']
         shuffle(browsers)
         return choice(browsers)
+
+class db(object):
+
+    def __init__(self):
+        self.description = 'Database functions'
+
+    def connect_mongo(self, database):
+        client = MongoClient(host='localhost',port=27017)
+        db = client[database]
+        return db 
