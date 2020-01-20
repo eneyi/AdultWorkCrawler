@@ -7,7 +7,7 @@
 import pymongo, datetime
 
 
-class AdultworkBotCleanerPipeline(object):
+class AdultworkCleanerPipeline(object):
    def cleanText(self, text):
       text = [i.strip().lower() for i in text.split('\n') if i != '']
       text = '. '.join(text)
@@ -80,6 +80,7 @@ class AdultworkMongoPipeline(object):
 
       self.client = pymongo.MongoClient(host='localhost',port=27017)
       self.db = self.client[self.mongo_db]
+      return self.db
 
    def process_item(self, item, spider):
       self.connect_db()

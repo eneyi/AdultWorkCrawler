@@ -1,12 +1,12 @@
 ''' This handles the extraction of data from pyquery objects for each data item '''
-
 import string, phonenumbers, requests, mapbox
 from pyquery import PyQuery
 from time import sleep
 from twilio.rest import Client
 from datetime import datetime
 from pymongo import MongoClient
-from adultwork_bot.pipelines import AdultworkBotCleanerPipeline as acp
+from adultwork_bot.pipelines import AdultworkCleanerPipeline as acp
+from adultwork_bot.pipelines import AdultworkMongoPipeline as amp
 
 
 '''This class is a profile updater for adult work, will update profiles for workers already captured'''
@@ -14,17 +14,12 @@ class AdultworkProfileUpdate(object):
     def __init__(self , userid):
         self.description = 'This class handles the update of fields Logins, date:location'
         self.userid = userid
-
-    def connect_db(self):
-        client = MongoClient(host = 'localhost', port = 27017)
-        return client
+        self.db = amp('Adultwork').connect_db()
 
     def update_location(self, pq):
 
-        conn = self.connect_db()
-        db = conn.Adultwork
 
-        db_obj = db.profiles.find_one({'userid': self.userid})
+        db_obj = self.db.profiles.find_one({'userid': self.userid})
         currentLocation = AdultWorkEngine().get_location(pq)
         previousLocation = db_obj['location']
 
@@ -36,11 +31,11 @@ class AdultworkProfileUpdate(object):
             phone = pq('b[itemprop="telephone"]').text()
             anonp = AdultWorkEngine().anonymize_phone(phone)
 
-            if db.phones.find_one({'number': anonp}):
-                db.phones.insert(AdultWorkEngine().get_phone(phone))
+            if self.db.phones.find_one({'number': anonp}):
+                self.db.phones.insert(AdultWorkEngine().get_phone(phone))
 
-            db.trackers.insert({datetime.today().strftime('%Y-%m-%d') : currentLocation, 'userid': self.userid, 'phone': anonp})
-            db.profiles.update({'userid': self.userid}, {'$set': {'location': currentLocation}})
+            self.db.trackers.insert({datetime.today().strftime('%Y-%m-%d') : currentLocation, 'userid': self.userid, 'phone': anonp})
+            self.db.profiles.update({'userid': self.userid}, {'$set': {'location': currentLocation}})
         conn.close()
 
     def update_phone(self, pq):
@@ -50,7 +45,7 @@ class AdultworkProfileUpdate(object):
         conn = self.connect_db()
         db = conn.Adultwork
 
-        db_obj = db.profiles.find_one({'userid': self.userid})
+        db_obj = self.db.profiles.find_one({'userid': self.userid})
         pll = db_obj['lastLogin']
         last_available = db_obj['availabilty']
         current_available = AdultWorkEngine().self.get_availability(pq)
@@ -58,22 +53,41 @@ class AdultworkProfileUpdate(object):
 
         if cll != pll:
             print('Detected new login details for {}...'.format(self.userid))
-            db.logins.insert({'userid': self.userid, 'loggedin': cll})
-
+            self.db.logins.insert({'userid': self.userid, 'loggedin': cll})
         conn.close()
 
     def update_tours(self, pq):
+        return 0
+
+    def update_reviews(self, pq):
+        reviews = [i['frid'] for i in self.db.reviews.find()]
+        userreviews = pq('')
+        return 0
+
+    def update_ratings(self, pq):
         return 0
 
 
 class AdultWorkEngine(object):
     def __init__(self):
         self.description = 'This class handle the extraction of data from pyquery objects for each data item'
-        self.twilio_acid = 'ACc8054c3efafaed2c088987ccff19ef36' #account id
-        self.twilio_token = '4d32fb02013e925c18e88c0d679aeb1c' #account token
+        self.twilio_acid = 'ACc8054c3efafaed2c088987ccff19ef36' #twilio account id
+        self.twilio_token = '4d32fb02013e925c18e88c0d679aeb1c' #twilio account token
         self.twilio_client = Client(self.twilio_acid, self.twilio_token)
         self.mapbox_token = 'pk.eyJ1IjoiZW5ueWVubnkiLCJhIjoiY2s1ZWZyZW9jMDA3MDNybnd6emQ1dGM2NSJ9.m3izYQUdHEhkK07O3Xz-oA'
         self.mapbox_client = mapbox.Geocoder(access_token=self.mapbox_token)
+
+    '''Extracts phone/contact data fields from pyquery object-pq and stores in data object - item '''
+    def get_phone(self, phone):
+        data = {}
+        pn = self.twilio_client.lookups.phone_numbers(phone).fetch(type='carrier')
+        data['number'] = self.anonymize_phone(phone)
+        data['stemmed'] = data['number'][:-1]
+        data['country_code'] = pn.country_code
+        data['carrier'] = pn.carrier['name']
+        data['phone_type'] = pn.carrier['type']
+        data['linked_profiles'] = 1
+        return data
 
     '''Anonymizes phone numbers'''
     def anonymize_phone(self, phone):
@@ -91,16 +105,16 @@ class AdultWorkEngine(object):
                 j= None
         return j
 
-    '''Extracts phone/contact data fields from pyquery object-pq and stores in data object - item '''
-    def get_phone(self, phone):
+    '''Extracts location data fields from pyquery object-pq and stores in data object - item '''
+    def get_location(self, pq):
         data = {}
-        pn = self.twilio_client.lookups.phone_numbers(phone).fetch(type='carrier')
-        data['number'] = self.anonymize_phone(phone)
-        data['stemmed'] = data['number'][:-1]
-        data['country_code'] = pn.country_code
-        data['carrier'] = pn.carrier['name']
-        data['phone_type'] = pn.carrier['type']
-        data['linked_profiles'] = 1
+        ## Location Data
+        data['town'] = pq('td.Label:contains("Town")').next().text()
+        data['county'] = pq('td.Label:contains("County")').next().text()
+        data['region'] = pq('td.Label:contains("Region")').next().text()
+        data['country'] = pq('td.Label:contains("Country")').next().text()
+        data['coordinates'] = self.get_lat_long('{}, {}, {}, {}'.format(data['town'], data['county'], data['region'], data['country']))
+        print(data['coordinates'])
         return data
 
     '''Get availability'''
@@ -126,26 +140,25 @@ class AdultWorkEngine(object):
     '''Get user socials'''
     def get_user_social(self, pq):
         #€#use user id 549295 as sample
-        hasLinks = ''
+        hasLinks, data = pq('td.Label:contains("Links")'), {}
         if hasLinks:
-            data = {}
-            facebook = pq('')
-            twitter = pq('')
-            instagram = pq('')
-            website = pq('')
-        return 0
-
-    '''Extracts location data fields from pyquery object-pq and stores in data object - item '''
-    def get_location(self, pq):
-        data = {}
-        ## Location Data
-        data['town'] = pq('td.Label:contains("Town")').next().text()
-        data['county'] = pq('td.Label:contains("County")').next().text()
-        data['region'] = pq('td.Label:contains("Region")').next().text()
-        data['country'] = pq('td.Label:contains("Country")').next().text()
-        data['coordinates'] = self.get_lat_long('{}, {}, {}, {}'.format(data['town'], data['county'], data['region'], data['country']))
-        print(data['coordinates'])
+            data['facebook'] = pq('a[href*="facebook"]').attr('href').split('LinkURL=')[-1] or None
+            data['twitter'] = pq('a[href*="twitter"]').attr('href').split('LinkURL=')[-1] or None
+            data['instagram'] = pq('a[href*="instagram"]').attr('href').split('LinkURL=')[-1] or None
+            data['website'] = pq('td.Label:contains("Website")').parent().next() or None
+            if data['website']:
+                data['website'] = website('td a').attr('href')
         return data
+
+    '''Extract LInked profiles: Other Adultwork profiles linked from this profile'''
+    def get_linked_profiles(self, pq):
+        viewLinks, profiles = pq('a[href*="ViewLink.asp"]').items() or None, None
+        if viewLinks:
+            viewLinks = [i.attr('href').split('%2F')[-1] for i in viewLinks]
+            profiles = [i for i in viewLinks if i.strip().isdigit()]
+            if len(profiles) == 0:
+                return None
+        return profiles
 
     '''Extracts demographics data fields from pyquery object-pq and stores in data object - item '''
     def get_demographics(self, pq):
@@ -186,13 +199,11 @@ class AdultWorkEngine(object):
     def extract_profile(self, pq, item):
         '''pq: PyQuery Object with data to extract'''
         '''item: item object that holds data'''
-
         phone = pq('b[itemprop="telephone"]').text()
         try:
             item['phone'] = self.get_phone(phone=phone)
         except:
             pass
-
         item['profile']['phone'] = self.anonymize_phone(phone)
 
         item['profileid'] = item['profile']['userid']
@@ -208,6 +219,7 @@ class AdultWorkEngine(object):
         item['profile']['isToLet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
         item['profile']['accessingFrom'] = pq('td.Label:contains("Accessing From")').next().text()
         item['profile']['hasPolls'] = self.get_user_polls(pq)
+        item['profile']['linkedProfiles'] = self.get_linked_profiles(pq)
 
         imgbase = 'https://www.adultwork.com/dlgViewImage.asp?Image={}'
         item['profile']['image_links'] = [imgbase.format(i.attr('src')).replace('/t/', '/i/') for i in  pq('a[href*="switchImage"] img').items()] or []
@@ -329,19 +341,10 @@ class AdultWorkEngine(object):
 
     '''Extracts reviews data fields from pyquery object-pq and stores in data object-item'''
     def extract_reviews(self, item):
-        conn = AdultworkProfileUpdate(item['userid']).connect_db()
-        db = conn.Adultwork
-        self.reviewIds =  [i['frid'] for i in db.reviews.find()]
-
         #pq: PyQuery Object with data to extract
         #item: item object that holds data
         if item['profile']['hasReviews']:
             for reviewLink in item['profile']['reviewLinks']:
-                frid = reviewLink.split('=')[-1].strip('/')
-                if frid in self.reviewIds:
-                    pass
-
-                print('Detected New Client Review {} for {}. Updating Reviews.....'.format(frid, item['userid']))
                 data, pq = {}, PyQuery(requests.get(reviewLink).text)
                 data['id'] = item['profileid']
                 data['frid'] = frid

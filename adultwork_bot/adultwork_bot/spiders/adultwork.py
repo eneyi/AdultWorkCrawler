@@ -7,7 +7,7 @@ from scrapy.http import FormRequest, Request
 from scrapy.linkextractors import LinkExtractor
 from requests import get, post
 from json import loads, dumps
-from adultwork_bot.utilities.utilities import db
+from adultwork_bot.pipelines import AdultworkMongoPipeline as amp
 
 
 class AdultworkSpider(scrapy.Spider):
@@ -16,7 +16,7 @@ class AdultworkSpider(scrapy.Spider):
     start_urls = ['http://adultwork.com/Search.asp']
     parameters = AdultWorkSearchParameters().uk_search_params()['formdata']
 
-    database = db().connect_mongo(database='Adultwork')
+    db = amp('Adultwork').connect_db()
     itemcount = 0
 
 
@@ -34,7 +34,7 @@ class AdultworkSpider(scrapy.Spider):
         ## for each profile id extracted, generate the sex worker's profile link
         for profileID in profileIDs:
             item = {}
-            if self.database.profiles.find_one({'userid': profileID}):
+            if self.db.profiles.find_one({'userid': profileID}):
                 print('User profile for {} found; running update.......'.format(profileID))
                 item['update'] = True
                 continue
