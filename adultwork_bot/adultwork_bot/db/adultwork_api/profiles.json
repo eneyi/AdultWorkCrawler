@@ -1,0 +1,165 @@
+{
+    "HasProfile":true,
+    "Profile":{
+        "UserID":123456,
+        "Nickname":"JosepheneBlogs",
+        "Summary":"Hey guys - check out my profile!",
+        "Gender":"Female",
+        "Age":21,
+        "Orientation":"Bi-curious",
+        "Country":"United Kingdom",
+        "Region":"South East",
+        "County":"London",
+        "Town":"Westminster",
+        "LocationZipCode":"KT14",
+        "Nationality": "British",
+        "Views":28837,
+        "MemberSince":"2013-08-09T10:15:37.517",
+        "LastLoggedIn":"2014-06-20T09:11:20.053",
+        "Verified":false,
+        "IsEscort":true,
+        "IsWebcam":false,
+        "IsPhoneChat":false,
+        "IsSMSChat":false,
+        "IsAlternative":false,
+        "IsDirectCam":false,
+        "IsDirectChat":false,
+        "AvailableTodayEscort":false,
+        "AvailableNowWebcam":false,
+        "AvailableNowPhoneChat":false,
+        "DirectCam":{
+            "ModeID": null,
+            "Mode": "",
+            "ModeColour": null,
+            "ChatOnly": false,
+            "DoesFreePreview": false,
+            "DoesFreeToGuest": false,
+            "DoesGroup": true,
+            "GroupPPM": "2.50",
+            "DoesPrivate": true,
+            "PrivatePPM": "3.50",
+            "DirectCamLink": "https://www.adultwork.com/Player6.0/PlayerLauncher.asp?U=123456",
+            "AllowVoyeur": false,
+            "TipsOnly": false,
+            "HasSpecialOffers": false,
+            "HasShows": true
+        },
+        "DirectChat":{
+            "PPM":"1.20"
+        },
+        "HasGallery":true,
+        "HasPrivateGallery":true,
+        "HasMovieClips":false,
+        "HasMovieRentals":false,
+        "HasSaleItems":false,
+        "Ratings":{
+            "Total":1001,
+            "Positive":1001,
+            "Neutral":0,
+            "Negative":0,
+            "Ratings":0,
+            "Disputes":0
+        },
+        "IsCouple": false,
+        "InGroup":true,
+        "GroupName":"My AdultWork Group",
+        "ProfileURL": "http://refer.adultwork.com/?PID=1&T=http%3a%2f%2fwww.adultwork.com%2f123456",
+        "RatingsURL": "http://refer.adultwork.com/?PID=1&T=http%3a%2f%2fwww.adultwork.com%2fdlgExtRatings.asp%3fU%3d123456",
+        "HasBlog": true,
+        "LastUpdated": "2015-12-23T10:16:53.447",
+        "IsBlacklisted": null,
+        "IsOnTour": false,
+        "ContentOverview": {
+            "FreeGalleryCount": 0,
+            "FreeGalleryLatestThumbSafe": false,
+            "FreeGalleryLatestThumbURL": null,
+            "PrivateGalleryCount": 0,
+            "PrivateGalleryLatestThumbSafe": false,
+            "PrivateGalleryLatestThumbURL": null,
+            "MovieClipCount": 0,
+            "MobileClipCount": 0,
+            "MovieClipLatestThumbSafe": false,
+            "MovieClipLatestThumbURL": null,
+            "RentalMovieCount": 0,
+            "RentalMovieLatestThumbSafe": false,
+            "RentalMovieLatestThumbURL": null
+        }
+    },
+    "HasDetails":false,
+    "Details":null,
+    "HasImages":false,
+    "Images":null,
+    "HasContact":true,
+    "Contact":{
+        "HasEmailAddress":false,
+        "EmailAddress":null,
+        "HasMobileNumber":false,
+        "MobileNumber":null,
+        "HasPhoneChatNumber":false,
+        "PhoneChatNumber":null,
+        "HasGroupPhoneNumber":false,
+        "GroupPhoneNumber":null,
+        "VoiceMailSteps":"",
+        "VoiceMailPrice":"",
+        "HasApps": true,
+        "Apps": [
+            {
+                "Name": "Facebook",
+                "DownloadURL": null,
+                "IconUrl": "https://cdn1.adultwork.com/Images/AppIcons/Facebook.png",
+                "Nickname": "facebook",
+                "UseForValidWCBookings": true,
+                "UseForValidPCBookings": false,
+                "UseForValidTCBookings": false
+            }
+        ]
+    },
+    "HasVitalStats":false,
+    "VitalStats":null,
+    "HasEnjoys":false,
+    "Enjoys":null,
+    "HasEnjoysWith":false,
+    "EnjoysWith":null,
+    "HasEscortRates":false,
+    "EscortRates":null,
+    "HasFAQs":false,
+    "FAQs":null,
+    "HasInterview":false,
+    "Interview":null,
+    "HasCountry": true,
+    "Country": {
+    "CountryID": 158,
+    "CountryName": "United Kingdom",
+    "CountryISO2": "UK",
+    "CountryISO3": "GBR",
+    "Nationality": "British"
+    },
+    "HasNationality": true,
+    "Nationality": {
+    "CountryID": 158,
+    "CountryName": "United Kingdom",
+    "CountryISO2": "UK",
+    "CountryISO3": "GBR",
+    "Nationality": "British"
+     },
+    "HasLinks":true,
+    "Links": {
+        "ID": 1,
+        "Text": "My other site",
+        "URL": "www.jb.name"
+    },
+    "HasOtherServices": true,
+    "Categories": [
+        {
+            "CategoryId": 3,
+            "CategoryName": "Drivers"
+        }
+    ],
+    "HasPractices": true,
+    "Practices": [
+        {
+            "PracticeId": 1,
+            "PracticeName": "Bondage & Discipline"
+        }
+    ]
+}
