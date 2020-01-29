@@ -4,68 +4,8 @@ from pyquery import PyQuery
 from time import sleep
 from twilio.rest import Client
 from datetime import datetime
-from pymongo import MongoClient
 from adultwork_bot.pipelines import AdultworkCleanerPipeline as acp
 from adultwork_bot.pipelines import AdultworkMongoPipeline as amp
-
-
-'''This class is a profile updater for adult work, will update profiles for workers already captured'''
-class AdultworkProfileUpdate(object):
-    def __init__(self , userid):
-        self.description = 'This class handles the update of fields Logins, date:location'
-        self.userid = userid
-        self.db = amp('Adultwork').connect_db()
-
-    def update_location(self, pq):
-
-
-        db_obj = self.db.profiles.find_one({'userid': self.userid})
-        currentLocation = AdultWorkEngine().get_location(pq)
-        previousLocation = db_obj['location']
-
-        if currentLocation == previousLocation:
-            pass
-
-        else:
-            print('Detected Location Change For {}. Updating Location Tracker.....'.format(self.userid))
-            phone = pq('b[itemprop="telephone"]').text()
-            anonp = AdultWorkEngine().anonymize_phone(phone)
-
-            if self.db.phones.find_one({'number': anonp}):
-                self.db.phones.insert(AdultWorkEngine().get_phone(phone))
-
-            self.db.trackers.insert({datetime.today().strftime('%Y-%m-%d') : currentLocation, 'userid': self.userid, 'phone': anonp})
-            self.db.profiles.update({'userid': self.userid}, {'$set': {'location': currentLocation}})
-        conn.close()
-
-    def update_phone(self, pq):
-        return 0
-
-    def update_logins(self, pq):
-        conn = self.connect_db()
-        db = conn.Adultwork
-
-        db_obj = self.db.profiles.find_one({'userid': self.userid})
-        pll = db_obj['lastLogin']
-        last_available = db_obj['availabilty']
-        current_available = AdultWorkEngine().self.get_availability(pq)
-        cll = acp().process_last_login(pq('td.Label:contains("Last Login:")').next().text())
-
-        if cll != pll:
-            print('Detected new login details for {}...'.format(self.userid))
-            self.db.logins.insert({'userid': self.userid, 'loggedin': cll})
-        conn.close()
-
-    def update_tours(self, pq):
-        return 0
-
-    def update_reviews(self, pq):
-        reviews = [i['frid'] for i in self.db.reviews.find()]
-        userreviews = pq('')
-        return 0
-
-    def update_ratings(self, pq):
-        return 0
 
 
 class AdultWorkEngine(object):
@@ -119,33 +59,40 @@ class AdultWorkEngine(object):
 
     '''Get availability'''
     def get_availability(self, pq):
-        available_today = 'Available Today' in pq
+        available_today = pq('td:contains("Available Today")') is not None
         return available_today
 
     '''Get Polls'''
     def get_user_polls(self, pq):
-        hasPolls = 'Poll.asp?PollID=' in pq
+        hasPolls = pq('a[href*="Poll.asp?PollID="]').items()
+        polls = []
         if hasPolls:
-            polls = []
-            pollsLinks = pq('a[href*="Poll.asp?PollID="]').items()
-            for poll in pollsLinks:
+            for poll in hasPolls:
                 data = {}
                 link = poll.attr('href')
                 data['pollId'] = link.split('PollID=')[-1].split('&')[0]
-                data['poolLink'] = 'https://www.adultwork.com/Poll.asp?PollID={}'.format(data['pollid'])
+                data['pollLink'] = 'https://www.adultwork.com/Poll.asp?PollID={}'.format(data['pollId'])
                 data['pollTitle'] = poll.attr('title').strip()
                 polls.append(data)
-            return polls
+        return polls
 
     '''Get user socials'''
     def get_user_social(self, pq):
         #€#use user id 549295 as sample
         hasLinks, data = pq('td.Label:contains("Links")'), {}
         if hasLinks:
-            data['facebook'] = pq('a[href*="facebook"]').attr('href').split('LinkURL=')[-1] or None
-            data['twitter'] = pq('a[href*="twitter"]').attr('href').split('LinkURL=')[-1] or None
-            data['instagram'] = pq('a[href*="instagram"]').attr('href').split('LinkURL=')[-1] or None
-            data['website'] = pq('td.Label:contains("Website")').parent().next() or None
+            fb =  pq('a[href*="facebook"]')
+            data['facebook'] = fb.attr('href').split('LinkURL=')[-1] if fb else None
+
+            tw = pq('a[href*="twitter"]')
+            data['twitter'] = tw.attr('href').split('LinkURL=')[-1] if tw else None
+
+            ins =  pq('a[href*="instagram"]')
+            data['instagram'] = ins.attr('href').split('LinkURL=')[-1] if ins else None
+
+            wb = pq('td.Label:contains("Website")')
+
+            data['website'] = wb.parent().next()
             if data['website']:
                 data['website'] = website('td a').attr('href')
         return data
@@ -179,8 +126,8 @@ class AdultWorkEngine(object):
     def get_services(self, pq):
         data = {}
         data['escort'] = 'escort' in pq('a[href*="javascript:makeBooking()"]').text().lower()
-        data['incall'] = pq('')
-        data['outcall'] = pq('')
+        data['incall'] = pq('td[id*="tdRI"]') is not None
+        data['outcall'] = pq('td[id*="tdRO"]') is not None
         data['phoneChat'] = 'phone chat' in pq('a[href*="javascript:doPhoneChat()"]').text().lower()
         data['smsChat'] = 'sms chat' in pq('a[href*="javascript:doSMSChat()"]').text().lower()
         data['webcam'] = 'webcam' in pq('a[href*="javascript:dC"]').text().lower()
@@ -204,8 +151,9 @@ class AdultWorkEngine(object):
             item['phone'] = self.get_phone(phone=phone)
         except:
             pass
-        item['profile']['phone'] = self.anonymize_phone(phone)
 
+        item['polls'] = self.get_user_polls(pq)
+        item['profile']['phone'] = self.anonymize_phone(phone)
         item['profileid'] = item['profile']['userid']
         item['profile']['name'] = pq('span[itemprop="name"]').text()
         item['profile']['availability'] = self.get_availability(pq)
@@ -218,8 +166,8 @@ class AdultWorkEngine(object):
         item['profile']['hasMovies'] = pq('a.HomePageTabLink:contains("Movies")') is not None
         item['profile']['isToLet'] = 'to let' in pq('td:contains("Other Services")').text().lower()
         item['profile']['accessingFrom'] = pq('td.Label:contains("Accessing From")').next().text()
-        item['profile']['hasPolls'] = self.get_user_polls(pq)
         item['profile']['linkedProfiles'] = self.get_linked_profiles(pq)
+        item['profile']['socials'] = self.get_user_social(pq)
 
         imgbase = 'https://www.adultwork.com/dlgViewImage.asp?Image={}'
         item['profile']['image_links'] = [imgbase.format(i.attr('src')).replace('/t/', '/i/') for i in  pq('a[href*="switchImage"] img').items()] or []
@@ -266,8 +214,8 @@ class AdultWorkEngine(object):
 
          ## Tours Data
         item['tours'] = {}
-        item['profile']['tourLink'] = 'https://www.adultwork.com/dlgUserTours.asp?UserID={}'.format(item['profile']['userid'])
-        item['profile']['hasTours'] = 'Sorry, this member does not' not in requests.get(item['profile']['tourLink']).text
+        item['profile']['toursLink'] = 'https://www.adultwork.com/dlgUserTours.asp?UserID={}'.format(item['profile']['userid'])
+        item['profile']['hasTours'] = 'Sorry, this member does not' not in requests.get(item['profile']['toursLink']).text
 
         ## Ratings Data
         item['ratings'] = {}
@@ -288,7 +236,7 @@ class AdultWorkEngine(object):
         item['profile']['hasReviews'] = len(reviews) != 0
         if item['profile']['hasReviews']:
             review_base_link = 'https://www.adultwork.com/ViewFieldReport.asp?FRID={}'
-            reviewLinks = [i.attr('href').split("(")[-1].replace(")", "") for i in pq('a[href*="vFR"]').items()]
+            reviewLinks = [i.attr('href').split("(")[-1].replace(")", "")+'DATE='+i.text() for i in pq('a[href*="vFR"]').items()]
             item['profile']['reviewLinks'] = [review_base_link.format(i) for i in reviewLinks]
         return item
 
@@ -299,15 +247,35 @@ class AdultWorkEngine(object):
         for tourDetail in tourDetails.items():
             cells = tourDetail('td')
             data = {}
-            data['id'] = item['profileid']
-            data['tourLink'] = item['profile']['tourLink']
-            data['tour_desc'] = PyQuery(cells[2]).text()
-            sts = PyQuery(cells[5]).text()
-            data['stops'] = 1 if '1 in' in sts else sts
-            data['where'] = sts.split('1 in ')[-1] if '1 in' in sts else 'Unknown'
-            data['coordinates'] = self.get_lat_long(data['where']+ ', United Kingdom')
-            data['starts'] = PyQuery(cells[3]).text()
-            data['ends'] = PyQuery(cells[4]).text()
+            data['tourid'] = PyQuery(cells[1])('a:contains("Details")[onclick*="vT"]').attr('onclick').split('(')[-1][:-1]
+            data['profileid'] = item['profileid']
+            data['tourLink'] = 'https://www.adultwork.com/dlgTour.asp?TourID={}'.format(data['tourid'])
+            data['tour_desc'] = PyQuery(cells[2]).text().lower()
+            data['tourDetails'] = PyQuery(cells[5])('input[name*="TourDetail"]').attr('value')
+
+            pq2 = PyQuery(requests.get(data['tourLink']).text)
+
+            spans, data['stops'] = pq2('span[title]'), []
+            if len(spans) % 3 == 0:
+                chunks = [spans[x:x+3] for x in range(0, len(spans), 3)]
+                for chunk in chunks:
+                    d={}
+                    d['where'] = PyQuery(chunk[0]).text().lower()
+                    d['region'] = PyQuery(chunk[0]).attr('title')
+                    d['details'] = PyQuery(cells[5])('input[name*="TourStopDetail"]').attr('value')
+                    d['start'] = PyQuery(chunk[1]).text()
+                    d['end'] = PyQuery(chunk[2]).text()
+                    d['coordinates'] = self.get_lat_long(d['where']+ ', United Kingdom')
+                    data['stops'].append(d)
+            else:
+                sts, d = PyQuery(cells[5]).text(), {}
+                d['stops'] = 1 if '1 in' in sts else sts
+                d['where'] = sts.split('1 in ')[-1] if '1 in' in sts else 'Unknown'
+                d['region'] = data['where']
+                d['coordinates'] = self.get_lat_long(data['where']+ ', United Kingdom')
+                d['start'] = PyQuery(cells[3]).text()
+                d['ends'] = PyQuery(cells[4]).text()
+                data['stops'].append(d)
             item['tours']['tours'].append(data)
         return item
 
@@ -332,7 +300,6 @@ class AdultWorkEngine(object):
                 if len(foruser) != 0:
                     ff = PyQuery(foruser[0]).attr('href').split('UserID=')[-1].replace("'", "")
 
-
                 if len(data) == 6:
                     by = data[1].lower()
                     data = {"id": item['profileid'], "for": item['profileid'], "service": service.attr('id').replace('tbl', ''), "type": data[0].replace('\n', ''), "by": by, "byid": ff, "date": data[2], "role": data[3],"serviceType":data[4], "description": data[5]}
@@ -345,13 +312,15 @@ class AdultWorkEngine(object):
         #item: item object that holds data
         if item['profile']['hasReviews']:
             for reviewLink in item['profile']['reviewLinks']:
-                data, pq = {}, PyQuery(requests.get(reviewLink).text)
+                frid = reviewLink.split('=')[-1].strip()
+                rl, meetDate = reviewLink.split('DATE=')
+                data, pq = {}, PyQuery(requests.get(rl).text)
                 data['id'] = item['profileid']
                 data['frid'] = frid
-                data['reviewLink'] = reviewLink
+                data['reviewLink'] = rl
                 data['for'] = pq('td.Label:contains("Report On:")').next().text().split("\xa0")[0]
                 data['by'] = pq('td.Label:contains("Report By:")').next().text().lower()
-                data['meetDate'] = pq('td.Label:contains("Meet Date:")').next().text()
+                data['meetDate'] = meetDate
                 data['meetLocation'] = pq('td.Label:contains("Meet Location:")').next().text()
                 data['coordinates'] = self.get_lat_long(data['meetLocation']+ ', United Kingdom')
                 data['type'] =pq('td.Label:contains("Type:")').next().text()

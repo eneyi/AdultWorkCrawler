@@ -18,7 +18,7 @@ class AdultWorkSearchParameters(object):
 
     def uk_search_params(self):
         params = {"formdata":{"cboCountryID":"158","cboRegionID":"0","cboCountyID":"0","strTown":"","cboNationalityID":"0","rdoNationalityInclude":"1","cboSCID":"0","cboAPID":"0","strKeywords":"","rdoKeySearch":"1","cboLastLoginSince":"X","strSelUsername":"","intAgeFrom":"","intAgeTo":"","rdoOrderBy":"1","rdoRatings":"0","question_1":"(select)","question_69":"","question_70":"","question_84":"","question_2":"","question_3":"","question_4":"(select)","question_5":"(select)","question_57":"","question_7":"(select)","question_8":"(select)","question_9":"(select)","question_10":"(select)","question_82":"(select)","GC_11":"(select)","question_11":"(select)","GC_46":"(select)","question_46":"(select)","GC_47":"(select)","question_47":"(select)","GC_58":"(select)","question_58":"(select)","GC_12":"(select)","question_12":"(select)","question_13":"(select)","GC_80":"(select)","question_80":"(select)","question_81":"(select)","question_14":"(select)","question_67":"(select)","question_49":"(select)","question_27":"","question_42":"","dteMeetDate":"","dteMeetTime":"X","intMeetDuration":"","intMeetPrice":"","cboBookingCurrencyID":"28","intHalfHourRateFrom":"","intHalfHourRateTo":"","intHourlyRateFrom":"","intHourlyRateTo":"","intOvernightRateFrom":"","intOvernightRateTo":"","dteAvailableAnotherDay":"","intMiles":"","strSelPostCode":"","strPostCodeArea":"","cboLastUpdated":"01/01/2003","intHotListID":"0","CommandID":"2","PageNo":"1","HotListSearch":"0","SearchTab":"Profile","hdteToday":"04/12/2019","DF":"1","SS":"0"}}
-        return params 
+        return params
 
 class Pooling(object):
     def __init__(self):
@@ -61,13 +61,3 @@ class Pooling(object):
         #browsers = self.ua.data['browsers']['chrome'] + self.ua.data['browsers']['firefox']
         shuffle(browsers)
         return choice(browsers)
-
-class db(object):
-
-    def __init__(self):
-        self.description = 'Database functions'
-
-    def connect_mongo(self, database):
-        client = MongoClient(host='localhost',port=27017)
-        db = client[database]
-        return db 

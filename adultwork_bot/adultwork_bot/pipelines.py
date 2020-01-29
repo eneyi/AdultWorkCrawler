@@ -46,11 +46,9 @@ class AdultworkCleanerPipeline(object):
         return reviewsList
 
    def process_item(self, item, spider):
-
       ## clean text descriptions
       item['profile']['descriptions'] = self.cleanText(item['profile']['descriptions'])
       item['profile']['otherDescriptions'] = self.cleanText(item['profile']['otherDescriptions'])
-
 
       if item['profile']['lastLogin'] != '':
           item['profile']['lastLogin'] = self.process_last_login(item['profile']['lastLogin'])
@@ -85,13 +83,12 @@ class AdultworkMongoPipeline(object):
    def process_item(self, item, spider):
       self.connect_db()
 
-      self.db.profiles.insert(item['profile'])
 
       if item['profile']['lastLogin']:
           self.db.logins.insert({'userid': item['userid'], 'loggedin': item['profile']['lastLogin']})
 
       if 'phone' in item.keys():
-          if self.db.phones.find_one({'stemmed': item['phone']['stemmed']}):
+          if self.db.phones.find({'stemmed': item['phone']['stemmed']}).count() > 0:
               self.db.phones.update({'stemmed': item['phone']['stemmed']}, {'$inc': {'linked_profiles': 1}})
           else:
               self.db.phones.insert(item['phone'])
@@ -100,7 +97,6 @@ class AdultworkMongoPipeline(object):
          for tour in item['tours']['tours']:
             self.db.tours.insert(tour)
 
-
       if item['profile']['hasReviews']:
          for review in item['reviews']['reviews']:
             self.db.reviews.insert(review)
@@ -108,6 +104,19 @@ class AdultworkMongoPipeline(object):
       if item['profile']['hasRatings']:
          for rating in item['ratings']['ratings']:
             self.db.ratings.insert(rating)
+
+      item['profile']['polls'] = []
+      if len(item['polls']) > 0:
+         for poll in item['polls']:
+            if self.db.polls.find({'pollId': poll['pollId']}).count() == 0:
+                self.db.polls.insert(poll)
+            item['profile']['polls'].append(poll['pollId'])
+
+      self.db.profiles.insert(item['profile'])
+      print('INSERTED ITEM {}\n\n\n\n\n'.format(item['profile']['scrapejob']))
+
+
+
 
       #return item
 class AdultworkBotSQLPipeline(object):

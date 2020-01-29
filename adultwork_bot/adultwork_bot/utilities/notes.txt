@@ -1,4 +1,0 @@
-    "https://stackoverflow.com/questions/45009940/scrapy-with-privoxy-and-tor-how-to-renew-ip"
-    "https://blog.michaelyin.info/scrapy-socket-proxy/"
-    "https://blog.michaelyin.info/scrapy-socket-proxy/"
-    "https://gist.github.com/DusanMadar/8d11026b7ce0bce6a67f7dd87b999f6b"
