@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-import pymongo, datetime
+import pymongo
+import datetime
 
 
 class AdultworkCleanerPipeline(object):
@@ -85,34 +80,34 @@ class AdultworkMongoPipeline(object):
 
 
       if item['profile']['lastLogin']:
-          self.db.logins.insert({'userid': item['userid'], 'loggedin': item['profile']['lastLogin']})
+          self.db.logins.insert_one({'userid': item['userid'], 'loggedin': item['profile']['lastLogin']})
 
       if 'phone' in item.keys():
           if self.db.phones.find({'stemmed': item['phone']['stemmed']}).count() > 0:
-              self.db.phones.update({'stemmed': item['phone']['stemmed']}, {'$inc': {'linked_profiles': 1}})
+              self.db.phones.update_one({'stemmed': item['phone']['stemmed']}, {'$inc': {'linked_profiles': 1}})
           else:
-              self.db.phones.insert(item['phone'])
+              self.db.phones.insert_one(item['phone'])
 
       if item['profile']['hasTours']:
          for tour in item['tours']['tours']:
-            self.db.tours.insert(tour)
+            self.db.tours.insert_one(tour)
 
       if item['profile']['hasReviews']:
          for review in item['reviews']['reviews']:
-            self.db.reviews.insert(review)
+            self.db.reviews.insert_one(review)
 
       if item['profile']['hasRatings']:
          for rating in item['ratings']['ratings']:
-            self.db.ratings.insert(rating)
+            self.db.ratings.insert_one(rating)
 
       item['profile']['polls'] = []
       if len(item['polls']) > 0:
          for poll in item['polls']:
             if self.db.polls.find({'pollId': poll['pollId']}).count() == 0:
-                self.db.polls.insert(poll)
+                self.db.polls.insert_one(poll)
             item['profile']['polls'].append(poll['pollId'])
 
-      self.db.profiles.insert(item['profile'])
+      self.db.profiles.insert_one(item['profile'])
       print('INSERTED ITEM {}\n\n\n\n\n'.format(item['profile']['scrapejob']))
 
 

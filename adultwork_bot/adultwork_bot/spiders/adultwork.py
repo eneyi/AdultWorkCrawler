@@ -52,7 +52,7 @@ class AdultworkSpider(scrapy.Spider):
                 continue
             '''
 
-            print('User profile for {} not found; starting scrape job.......'.format(profileID))
+            print('User profile for {} found; starting scrape job.......'.format(profileID))
             item['update'] = False
             yield Request(url=item['profile']['profilelink'], callback=self.parse_profile, meta={'item': item})
 
@@ -71,10 +71,12 @@ class AdultworkSpider(scrapy.Spider):
 
     '''Parse a single sex workers profile'''
     def parse_profile(self, response):
-        pq, item =  PyQuery(response.text), response.meta['item']
+
+        pq, item = PyQuery(response.text), response.meta['item']
         updater = response.meta['item']['update']
 
         profileID = item['userid']
+        print('Parsing profile for {} .......'.format(profileID))
         item['profile']['userid'] = profileID
         item['profile']['ratingsLink'] = 'http://adultwork.com/dlgViewRatings.asp?UserID={}'.format(profileID)
         item['profile']['blogLink'] = 'https://www.adultwork.com/Blog.asp?UserID={}'.format(profileID)
@@ -94,8 +96,9 @@ class AdultworkSpider(scrapy.Spider):
     def parse_tour(self, response):
         item = response.meta['item']
         if item['profile']['hasTours']:
+            print('Parsing tours for {} .......'.format(item['profile']['userid']))
             print('Scraping tours for {}'.format(item['profile']['userid']))
-            pq =  PyQuery(response.text)
+            pq = PyQuery(response.text)
             item = AdultWorkEngine().extract_tours(pq, item)
         yield Request(url=item['profile']['ratingsLink'], callback=self.parse_ratings, meta = {'item': item})
 

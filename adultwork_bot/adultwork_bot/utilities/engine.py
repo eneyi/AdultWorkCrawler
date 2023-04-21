@@ -38,11 +38,12 @@ class AdultWorkEngine(object):
     '''Geolocate String Addresses'''
     def get_lat_long(self, address):
         g = self.mapbox_client.forward(address)
+        j = None
         if g.status_code == 200:
             try:
                 j = g.json()['features'][0]['geometry']['coordinates']
             except:
-                j= None
+                pass
         return j
 
     '''Extracts location data fields from pyquery object-pq and stores in data object - item '''
